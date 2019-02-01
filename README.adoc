@@ -1,0 +1,32 @@
+= baseimage-docker
+
+== brief
+A minimal base image modified for Docker-friendliness
+
+- based on nvidia image + cuda + opengl (but can be changed)
+- add ssh access
+- add user with sudo permision
+
+
+== usage
+
+.build
+[source,bash]
+----
+make
+----
+
+.run
+[source,bash]
+----
+./run.sh
+----
+
+
+.connect
+[source,bash]
+----
+./connect.sh
+----
+
+
