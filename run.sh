@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGE_NAME=jumo
+IMAGE_NAME=baseimage
 
 nvidia-docker run \
 --rm \
