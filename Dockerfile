@@ -7,6 +7,8 @@ MAINTAINER Julien Morat "julien.morat@naverlabs.com"
 
 ARG   USER_NAME
 ARG   PASSWD=1234
+ENV   USER_NAME=${USER_NAME}
+ENV   USER_HOME=/home/${USER_NAME}
 
 ################################################################################
 ######### base #################################################################
@@ -35,12 +37,11 @@ RUN   adduser --disabled-password --gecos $USER_NAME $USER_NAME
 RUN   echo "${USER_NAME}:${PASSWD}" | chpasswd
 RUN   mkdir /config && chmod 777 /config && chown $USER_NAME:$USER_NAME /config
 RUN   usermod -aG sudo ${USER_NAME}
-ENV   HOME=/home/$USER_NAME
-RUN   mkdir -p ${HOME}/.ssh
-COPY  ssh/id_rsa.pub ${HOME}/.ssh/authorized_keys
-RUN   chown -R $USER_NAME ${HOME}/.ssh && \
-     chmod 700 ${HOME}/.ssh  && \
-     chmod 600 ${HOME}/.ssh/authorized_keys
+RUN   mkdir -p ${USER_HOME}/.ssh
+COPY  ssh/id_rsa.pub ${USER_HOME}/.ssh/authorized_keys
+RUN   chown -R $USER_NAME ${USER_HOME}/.ssh && \
+     chmod 700 ${USER_HOME}/.ssh  && \
+     chmod 600 ${USER_HOME}/.ssh/authorized_keys
 
 ######### prepare BOOT #########################################################
 USER  root
