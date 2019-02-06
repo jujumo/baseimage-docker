@@ -6,9 +6,9 @@ FROM ${BASE_IMAGE}
 MAINTAINER Julien Morat "julien.morat@naverlabs.com"
 
 ARG   USER_NAME
+ARG   USER_UID=1000
 ARG   PASSWD=1234
-ENV   USER_NAME=${USER_NAME}
-ENV   USER_HOME=/home/${USER_NAME}
+ARG   USER_HOME=/home/${USER_NAME}
 
 ################################################################################
 ######### base #################################################################
@@ -33,18 +33,19 @@ RUN   sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.
 EXPOSE 22
 
 ######### create non-root USER #################################################
-RUN   adduser --disabled-password --gecos $USER_NAME $USER_NAME
+## NOTE: docker build hangs/crashes when useradd with large UID
+## NOTE: use --no-log-init as a workaround
+## NOTE: https://github.com/moby/moby/issues/5419
+RUN   useradd --no-log-init --home-dir ${USER_HOME} --create-home --uid ${USER_UID} --shell /bin/bash ${USER_NAME}
 RUN   echo "${USER_NAME}:${PASSWD}" | chpasswd
-RUN   mkdir /config && chmod 777 /config && chown $USER_NAME:$USER_NAME /config
 RUN   usermod -aG sudo ${USER_NAME}
 RUN   mkdir -p ${USER_HOME}/.ssh
 COPY  ssh/id_rsa.pub ${USER_HOME}/.ssh/authorized_keys
 RUN   chown -R $USER_NAME ${USER_HOME}/.ssh && \
-     chmod 700 ${USER_HOME}/.ssh  && \
-     chmod 600 ${USER_HOME}/.ssh/authorized_keys
+      chmod 700 ${USER_HOME}/.ssh  && \
+      chmod 600 ${USER_HOME}/.ssh/authorized_keys
 
 ######### prepare BOOT #########################################################
 USER  root
-COPY start.bash /home/root/start.sh
-
+COPY  start.bash /home/root/start.sh
 ENTRYPOINT ["bash", "-l", "/home/root/start.sh"]

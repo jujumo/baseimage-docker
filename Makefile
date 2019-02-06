@@ -1,6 +1,8 @@
 IMAGE_NAME := baseimage
-USER_NAME ?= $(USER)
 BASE_IMAGE ?= nvidia/cudagl:10.0-runtime-ubuntu18.04
+
+USER_NAME ?= $(USER)
+USER_UID ?= $(shell id -u)
 
 SSH_KEY_USER = ~/.ssh/id_rsa.pub
 
@@ -21,6 +23,10 @@ endif
 
 docker: Dockerfile ssh
 	nvidia-docker build -t $(USER)/$(IMAGE_NAME) \
-	--build-arg USER_NAME=$(USER_NAME) \
 	--build-arg BASE_IMAGE=$(BASE_IMAGE) \
+	--build-arg USER_NAME=$(USER_NAME) \
+	--build-arg USER_UID=$(USER_UID) \
 	-f Dockerfile .
+
+clean:
+	nvidia-docker image rm $(USER)/$(IMAGE_NAME)
